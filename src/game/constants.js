@@ -9,6 +9,5 @@ export const GameModeName = {
 export const GameState = {
   MENU: 'MENU',
   PLAYING: 'PLAYING',
-  PAUSED: 'PAUSED',
   GAME_OVER: 'GAME_OVER',
 };

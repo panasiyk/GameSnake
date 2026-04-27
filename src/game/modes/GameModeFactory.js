@@ -1,4 +1,4 @@
-import {GameModeName} from '../types';
+import {GameModeName} from '../constants';
 import {ClassicMode} from './ClassicMode';
 import {GodMode} from './GodMode';
 import {WallsMode} from './WallsMode';

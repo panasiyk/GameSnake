@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import {GameModeName, GameState} from './types';
+import {GameModeName, GameState} from './constants';
 import {GameConfig} from './GameConfig';
 import {Snake} from './entities/Snake';
 import {GameModeFactory} from './modes/GameModeFactory';
@@ -79,9 +79,8 @@ export class GameEngine {
         this._fieldRenderer = new FieldRenderer(app);
         this._sidebarRenderer = new SidebarRenderer(app, GameModeFactory.getAll(), {
             onPlay: () => this._startGame(),
-            onMenu: () => this._setState(GameState.PAUSED),
-            onResume: () => this._setState(GameState.PLAYING),
-            onExit: () => this._setState(GameState.MENU),
+            onMenu: () => this._stopGame(),
+            onExit: () => this._exitApp(),
             onModeSelect: (mode) => this._setMode(mode),
         });
 
@@ -101,6 +100,20 @@ export class GameEngine {
         this._snake.reset();
         this._foods = this._spawn.spawnFood(this._mode.getFoodCount(), this._snake.body);
         this._setState(GameState.PLAYING);
+    }
+
+    _stopGame() {
+        this._setState(GameState.MENU);
+    }
+
+    _exitApp() {
+        window.close();
+        // Fallback for browsers that block window.close()
+        setTimeout(() => {
+            if (!window.closed) {
+                alert("Exit: Please close this tab manually.");
+            }
+        }, 500);
     }
 
     _setMode(modeName) {

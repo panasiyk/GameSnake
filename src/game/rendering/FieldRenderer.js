@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { GameModeName, GameState } from '../types';
+import { GameModeName, GameState } from '../constants';
 import { GameConfig } from '../GameConfig';
 
 export class FieldRenderer {

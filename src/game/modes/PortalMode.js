@@ -1,4 +1,4 @@
-import {GameModeName} from '../types';
+import {GameModeName} from '../constants';
 import {GameConfig} from '../GameConfig';
 
 export class PortalMode {

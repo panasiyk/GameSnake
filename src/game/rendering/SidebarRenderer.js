@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import {GameState} from '../types';
+import {GameState} from '../constants';
 import {GameConfig} from '../GameConfig';
 
 export class SidebarRenderer {
@@ -26,14 +26,14 @@ export class SidebarRenderer {
 
         this._modeRadios = this._buildModeRadios(modes, callbacks.onModeSelect);
 
-        this._playButton = this._buildButton('Play', 100, 500, callbacks.onPlay);
-        this._menuButton = this._buildButton('Menu', 100, 500, callbacks.onMenu);
-        this._resumeButton = this._buildButton('Resume', 40, 500, callbacks.onResume);
+        // UI Buttons
+        this._playButton = this._buildButton('Play', 40, 500, callbacks.onPlay);
         this._exitButton = this._buildButton('Exit', 160, 500, callbacks.onExit);
+        this._menuButton = this._buildButton('Menu', 100, 500, callbacks.onMenu);
+
         this._container.addChild(this._playButton);
-        this._container.addChild(this._menuButton);
-        this._container.addChild(this._resumeButton);
         this._container.addChild(this._exitButton);
+        this._container.addChild(this._menuButton);
 
         app.stage.addChild(this._container);
     }
@@ -44,10 +44,12 @@ export class SidebarRenderer {
     }
 
     updateState(state, selectedMode) {
+        // Main Menu: Show Play + Exit
         this._playButton.visible = state === GameState.MENU;
+        this._exitButton.visible = state === GameState.MENU;
+
+        // Active Game: Show Menu
         this._menuButton.visible = state === GameState.PLAYING;
-        this._resumeButton.visible = state === GameState.PAUSED;
-        this._exitButton.visible = state === GameState.PAUSED;
 
         this._modeRadios.forEach((radio, modeName) => {
             radio.visible = state === GameState.MENU;
