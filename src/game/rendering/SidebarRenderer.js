@@ -1,34 +1,12 @@
 import * as PIXI from 'pixi.js';
-import {GameModeName, GameState} from '../types';
+import {GameState} from '../types';
 import {GameConfig} from '../GameConfig';
 
-export interface ISidebarRenderer {
-    updateScore(score: number, bestScore: number): void;
-    updateState(state: GameState, selectedMode: GameModeName): void;
-}
-
-export interface SidebarCallbacks {
-    readonly onPlay: () => void;
-    readonly onMenu: () => void;
-    readonly onResume: () => void;
-    readonly onExit: () => void;
-    readonly onModeSelect: (mode: GameModeName) => void;
-}
-
-export class SidebarRenderer implements ISidebarRenderer {
-    private readonly _container: PIXI.Container;
-    private readonly _scoreText: PIXI.Text;
-    private readonly _bestScoreText: PIXI.Text;
-    private readonly _playButton: PIXI.Container;
-    private readonly _menuButton: PIXI.Container;
-    private readonly _resumeButton: PIXI.Container;
-    private readonly _exitButton: PIXI.Container;
-    private readonly _modeRadios: Map<GameModeName, PIXI.Container>;
-
+export class SidebarRenderer {
     constructor(
-        app: PIXI.Application,
-        modes: ReadonlyArray<GameModeName>,
-        callbacks: SidebarCallbacks,
+        app,
+        modes,
+        callbacks,
     ) {
         this._container = new PIXI.Container();
         this._container.x = GameConfig.FIELD_SIZE + 40;
@@ -60,12 +38,12 @@ export class SidebarRenderer implements ISidebarRenderer {
         app.stage.addChild(this._container);
     }
 
-    updateScore(score: number, bestScore: number): void {
+    updateScore(score, bestScore) {
         this._scoreText.text = `Score: ${score}`;
         this._bestScoreText.text = `Best Score: ${bestScore}`;
     }
 
-    updateState(state: GameState, selectedMode: GameModeName): void {
+    updateState(state, selectedMode) {
         this._playButton.visible = state === GameState.MENU;
         this._menuButton.visible = state === GameState.PLAYING;
         this._resumeButton.visible = state === GameState.PAUSED;
@@ -73,17 +51,17 @@ export class SidebarRenderer implements ISidebarRenderer {
 
         this._modeRadios.forEach((radio, modeName) => {
             radio.visible = state === GameState.MENU;
-            this._drawRadioBox(radio.getChildAt(0) as PIXI.Graphics, modeName === selectedMode);
+            this._drawRadioBox(radio.getChildAt(0), modeName === selectedMode);
         });
     }
 
-    private _drawRadioBox(box: PIXI.Graphics, selected: boolean): void {
+    _drawRadioBox(box, selected) {
         box.clear();
         box.rect(0, 0, 20, 20).fill({color: 0xffffff});
         if (selected) box.rect(4, 4, 12, 12).fill({color: 0x0000ff});
     }
 
-    private _buildTitle(): PIXI.Text {
+    _buildTitle() {
         const title = new PIXI.Text({
             text: 'Snake Game',
             style: {fontFamily: 'Arial', fontSize: 32, fontWeight: 'bold', fill: GameConfig.COLORS.TEXT_ACCENT},
@@ -93,18 +71,18 @@ export class SidebarRenderer implements ISidebarRenderer {
         return title;
     }
 
-    private _createText(text: string, x: number, y: number, fontSize: number): PIXI.Text {
+    _createText(text, x, y, fontSize) {
         const t = new PIXI.Text({text, style: {fill: GameConfig.COLORS.TEXT_MAIN, fontSize}});
         t.x = x;
         t.y = y;
         return t;
     }
 
-    private _buildModeRadios(
-        modes: ReadonlyArray<GameModeName>,
-        onModeSelect: (mode: GameModeName) => void,
-    ): Map<GameModeName, PIXI.Container> {
-        const map = new Map<GameModeName, PIXI.Container>();
+    _buildModeRadios(
+        modes,
+        onModeSelect,
+    ) {
+        const map = new Map();
 
         modes.forEach((modeName, index) => {
             const radio = new PIXI.Container();
@@ -131,7 +109,7 @@ export class SidebarRenderer implements ISidebarRenderer {
         return map;
     }
 
-    private _buildButton(label: string, x: number, y: number, onClick: () => void): PIXI.Container {
+    _buildButton(label, x, y, onClick) {
         const container = new PIXI.Container();
         container.x = x;
         container.y = y;

@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import { GameEngine } from '../game/GameEngine';
 
 export default function SnakeGame() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    let engine: GameEngine | null = null;
+    let engine = null;
     let cancelled = false;
 
     GameEngine.create(containerRef.current)
@@ -17,7 +17,7 @@ export default function SnakeGame() {
           return;
         }
         engine = e;
-      })
+      });
 
     return () => {
       cancelled = true;

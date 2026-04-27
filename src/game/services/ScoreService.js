@@ -1,36 +1,27 @@
 import {GameConfig} from '../GameConfig';
 
-export interface IScoreService {
-    readonly score: number;
-    readonly bestScore: number;
-    reset(): void;
-    increment(): void;
-}
-
-export class ScoreService implements IScoreService {
-    private _score = 0;
-    private _bestScore: number;
-
+export class ScoreService {
     constructor() {
+        this._score = 0;
         this._bestScore = parseInt(
             localStorage.getItem(GameConfig.SCORE_STORAGE_KEY) ?? '0',
             10,
         );
     }
 
-    get score(): number {
+    get score() {
         return this._score;
     }
 
-    get bestScore(): number {
+    get bestScore() {
         return this._bestScore;
     }
 
-    reset(): void {
+    reset() {
         this._score = 0;
     }
 
-    increment(): void {
+    increment() {
         this._score++;
         if (this._score > this._bestScore) {
             this._bestScore = this._score;

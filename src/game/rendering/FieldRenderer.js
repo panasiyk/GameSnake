@@ -1,27 +1,9 @@
 import * as PIXI from 'pixi.js';
-import { Position, GameModeName, GameState } from '../types';
+import { GameModeName, GameState } from '../types';
 import { GameConfig } from '../GameConfig';
 
-export interface FieldRenderData {
-  readonly snakeBody: ReadonlyArray<Position>;
-  readonly foods: ReadonlyArray<Position>;
-  readonly walls: ReadonlyArray<Position>;
-  readonly modeName: GameModeName;
-  readonly state: GameState;
-}
-
-export interface IFieldRenderer {
-  render(data: FieldRenderData): void;
-}
-
-export class FieldRenderer implements IFieldRenderer {
-  private readonly _container: PIXI.Container;
-  private readonly _snakeGraphics: PIXI.Graphics;
-  private readonly _foodGraphics: PIXI.Graphics;
-  private readonly _wallGraphics: PIXI.Graphics;
-  private readonly _gameOverText: PIXI.Text;
-
-  constructor(app: PIXI.Application) {
+export class FieldRenderer {
+  constructor(app) {
     this._container = new PIXI.Container();
     this._container.x = 20;
     this._container.y = 20;
@@ -43,14 +25,14 @@ export class FieldRenderer implements IFieldRenderer {
     app.stage.addChild(this._container);
   }
 
-  render(data: FieldRenderData): void {
+  render(data) {
     this._renderWalls(data.walls);
     this._renderFood(data.foods, data.modeName);
     this._renderSnake(data.snakeBody, data.state);
     this._gameOverText.visible = data.state === GameState.GAME_OVER;
   }
 
-  private _renderSnake(body: ReadonlyArray<Position>, state: GameState): void {
+  _renderSnake(body, state) {
     this._snakeGraphics.clear();
     this._snakeGraphics.alpha = state === GameState.GAME_OVER ? 0.5 : 1;
     body.forEach((pos, i) => {
@@ -61,7 +43,7 @@ export class FieldRenderer implements IFieldRenderer {
     });
   }
 
-  private _renderFood(foods: ReadonlyArray<Position>, modeName: GameModeName): void {
+  _renderFood(foods, modeName) {
     this._foodGraphics.clear();
     const color = modeName === GameModeName.PORTAL
       ? GameConfig.COLORS.FOOD_PORTAL
@@ -74,7 +56,7 @@ export class FieldRenderer implements IFieldRenderer {
     });
   }
 
-  private _renderWalls(walls: ReadonlyArray<Position>): void {
+  _renderWalls(walls) {
     this._wallGraphics.clear();
     walls.forEach(pos => {
       this._wallGraphics
@@ -84,19 +66,19 @@ export class FieldRenderer implements IFieldRenderer {
     });
   }
 
-  private _buildBorder(): PIXI.Graphics {
+  _buildBorder() {
     return new PIXI.Graphics()
       .rect(-2, -2, GameConfig.FIELD_SIZE + 4, GameConfig.FIELD_SIZE + 4)
       .fill({ color: GameConfig.COLORS.BORDER });
   }
 
-  private _buildFieldBackground(): PIXI.Graphics {
+  _buildFieldBackground() {
     return new PIXI.Graphics()
       .rect(0, 0, GameConfig.FIELD_SIZE, GameConfig.FIELD_SIZE)
       .fill({ color: GameConfig.COLORS.FIELD });
   }
 
-  private _buildGrid(): PIXI.Graphics {
+  _buildGrid() {
     const grid = new PIXI.Graphics();
     grid.alpha = 0.1;
     for (let i = 0; i <= GameConfig.GRID_SIZE; i++) {
@@ -112,7 +94,7 @@ export class FieldRenderer implements IFieldRenderer {
     return grid;
   }
 
-  private _buildGameOverText(): PIXI.Text {
+  _buildGameOverText() {
     const text = new PIXI.Text({
       text: 'GAME OVER',
       style: {

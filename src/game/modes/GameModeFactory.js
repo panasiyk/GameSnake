@@ -1,15 +1,12 @@
 import {GameModeName} from '../types';
-import {IGameMode} from './IGameMode';
 import {ClassicMode} from './ClassicMode';
 import {GodMode} from './GodMode';
 import {WallsMode} from './WallsMode';
 import {PortalMode} from './PortalMode';
 import {SpeedMode} from './SpeedMode';
 
-type ModeConstructor = new () => IGameMode;
-
 export class GameModeFactory {
-    private static readonly _registry = new Map<GameModeName, ModeConstructor>([
+    static _registry = new Map([
         [GameModeName.CLASSIC, ClassicMode],
         [GameModeName.GOD_MODE, GodMode],
         [GameModeName.WALLS, WallsMode],
@@ -17,17 +14,17 @@ export class GameModeFactory {
         [GameModeName.SPEED, SpeedMode],
     ]);
 
-    static register(name: GameModeName, ctor: ModeConstructor): void {
+    static register(name, ctor) {
         this._registry.set(name, ctor);
     }
 
-    static create(name: GameModeName): IGameMode {
+    static create(name) {
         const Ctor = this._registry.get(name);
         if (!Ctor) throw new Error(`Unknown game mode: ${name}`);
         return new Ctor();
     }
 
-    static getAll(): GameModeName[] {
+    static getAll() {
         return Array.from(this._registry.keys());
     }
 }

@@ -1,41 +1,43 @@
 import * as PIXI from 'pixi.js';
-import {GameModeName, GameState, Position} from './types';
+import {GameModeName, GameState} from './types';
 import {GameConfig} from './GameConfig';
-import {ISnake, Snake} from './entities/Snake';
-import {IGameMode, IModeContext} from './modes/IGameMode';
+import {Snake} from './entities/Snake';
 import {GameModeFactory} from './modes/GameModeFactory';
-import {IInputService, InputService} from './services/InputService';
-import {IScoreService, ScoreService} from './services/ScoreService';
-import {ISpawnService, SpawnService} from './services/SpawnService';
-import {CollisionService, ICollisionService} from './services/CollisionService';
-import {FieldRenderer, IFieldRenderer} from './rendering/FieldRenderer';
-import {ISidebarRenderer, SidebarRenderer} from './rendering/SidebarRenderer';
+import {InputService} from './services/InputService';
+import {ScoreService} from './services/ScoreService';
+import {SpawnService} from './services/SpawnService';
+import {CollisionService} from './services/CollisionService';
+import {FieldRenderer} from './rendering/FieldRenderer';
+import {SidebarRenderer} from './rendering/SidebarRenderer';
 
 export class GameEngine {
-    private _app: PIXI.Application | null = null;
-    private _fieldRenderer: IFieldRenderer | null = null;
-    private _sidebarRenderer: ISidebarRenderer | null = null;
-
-    private _mode: IGameMode;
-    private _state: GameState = GameState.MENU;
-    private _foods: Position[] = [];
-    private _walls: Position[] = [];
-    private _tickRate: number;
-    private _tickTimer = 0;
-    private _isDestroyed = false;
-
-    private constructor(
-        private readonly _snake: ISnake,
-        private readonly _input: IInputService,
-        private readonly _score: IScoreService,
-        private readonly _spawn: ISpawnService,
-        private readonly _collision: ICollisionService,
+    constructor(
+        _snake,
+        _input,
+        _score,
+        _spawn,
+        _collision,
     ) {
+        this._snake = _snake;
+        this._input = _input;
+        this._score = _score;
+        this._spawn = _spawn;
+        this._collision = _collision;
+
+        this._app = null;
+        this._fieldRenderer = null;
+        this._sidebarRenderer = null;
+
         this._mode = GameModeFactory.create(GameModeName.CLASSIC);
+        this._state = GameState.MENU;
+        this._foods = [];
+        this._walls = [];
         this._tickRate = this._mode.getInitialTickRate();
+        this._tickTimer = 0;
+        this._isDestroyed = false;
     }
 
-    static async create(parent: HTMLElement): Promise<GameEngine> {
+    static async create(parent) {
         const engine = new GameEngine(
             new Snake(),
             new InputService(),
@@ -47,7 +49,7 @@ export class GameEngine {
         return engine;
     }
 
-    destroy(): void {
+    destroy() {
         this._isDestroyed = true;
         this._input.destroy();
         try {
@@ -57,7 +59,7 @@ export class GameEngine {
         }
     }
 
-    private async _init(parent: HTMLElement): Promise<void> {
+    async _init(parent) {
         const app = new PIXI.Application();
         await app.init({
             width: GameConfig.APP_WIDTH,
@@ -91,7 +93,7 @@ export class GameEngine {
         this._setState(GameState.MENU);
     }
 
-    private _startGame(): void {
+    _startGame() {
         this._score.reset();
         this._walls = [];
         this._tickRate = this._mode.getInitialTickRate();
@@ -101,13 +103,13 @@ export class GameEngine {
         this._setState(GameState.PLAYING);
     }
 
-    private _setMode(modeName: GameModeName): void {
+    _setMode(modeName) {
         if (this._state === GameState.PLAYING) return;
         this._mode = GameModeFactory.create(modeName);
         this._sidebarRenderer?.updateState(this._state, this._mode.name);
     }
 
-    private _setState(state: GameState): void {
+    _setState(state) {
         this._state = state;
         if (state === GameState.MENU) this._score.reset();
         this._sidebarRenderer?.updateScore(this._score.score, this._score.bestScore);
@@ -115,7 +117,7 @@ export class GameEngine {
         this._render();
     }
 
-    private _update(deltaMS: number): void {
+    _update(deltaMS) {
         if (this._state !== GameState.PLAYING) return;
 
         this._tickTimer += deltaMS;
@@ -127,7 +129,7 @@ export class GameEngine {
         this._render();
     }
 
-    private _tick(): void {
+    _tick() {
         this._snake.applyDirection();
         const newHead = this._mode.calculateNextHead(this._snake.head, this._snake.direction);
         this._snake.moveHead(newHead);
@@ -141,7 +143,7 @@ export class GameEngine {
         if (foodIndex !== -1) this._eatFood(foodIndex);
     }
 
-    private _hasCollision(): boolean {
+    _hasCollision() {
         const {head} = this._snake;
 
         if (this._mode.isBoundaryLethal() && this._collision.isOutOfBounds(head))
@@ -156,7 +158,7 @@ export class GameEngine {
         return false;
     }
 
-    private _eatFood(foodIndex: number): void {
+    _eatFood(foodIndex) {
         this._score.increment();
         this._sidebarRenderer?.updateScore(this._score.score, this._score.bestScore);
         this._snake.grow();
@@ -169,14 +171,14 @@ export class GameEngine {
         );
     }
 
-    private _triggerGameOver(): void {
+    _triggerGameOver() {
         this._setState(GameState.GAME_OVER);
         setTimeout(() => {
             if (!this._isDestroyed) this._setState(GameState.MENU);
         }, GameConfig.GAME_OVER_DELAY_MS);
     }
 
-    private _buildModeContext(): IModeContext {
+    _buildModeContext() {
         return {
             foods: this._foods,
             currentTickRate: this._tickRate,
@@ -193,7 +195,7 @@ export class GameEngine {
         };
     }
 
-    private _render(): void {
+    _render() {
         this._fieldRenderer?.render({
             snakeBody: this._snake.body,
             foods: this._foods,
